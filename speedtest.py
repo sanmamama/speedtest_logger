@@ -12,7 +12,7 @@ chromedriver_path = ''  # ← 自分の環境に合わせて変更
 
 # オプション設定（ヘッドレスにはしない）
 options = Options()
-# options.add_argument('--headless')  # ← これは使わない
+options.add_argument('--headless') 
 
 while True:
 	# Chromeブラウザを起動
@@ -111,7 +111,7 @@ while True:
 			print(f"DL: {ipv6_dl_internal}, UL: {ipv6_ul_internal}")
 
 			# ▼ CSV形式で追記保存
-			with open("result.txt", "a", newline='', encoding="utf-8") as f:
+			with open("result.csv", "a", newline='', encoding="sjis") as f:
 				writer = csv.writer(f)
 				# writer.writerow([
 				# 		"測定日時",
@@ -135,5 +135,5 @@ while True:
 
 	finally:
 		driver.quit()  # 終了後に自動で閉じたい場合
-		time.sleep(600)	  # 10分待機（次の測定までのインターバル）
+		time.sleep(300)	  # 10分待機（次の測定までのインターバル）
 		pass
