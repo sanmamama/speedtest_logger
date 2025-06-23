@@ -15,14 +15,14 @@ options = Options()
 options.add_argument('--headless') 
 
 while True:
-	# Chromeブラウザを起動
-	service = Service(executable_path=chromedriver_path)
-	driver = webdriver.Chrome(service=service, options=options)
-
-	# 対象サイトへアクセス
-	driver.get("http://www.speed-visualizer.jp/")
-
 	try:
+	# Chromeブラウザを起動
+		service = Service(executable_path=chromedriver_path)
+		driver = webdriver.Chrome(service=service, options=options)
+
+		# 対象サイトへアクセス
+		driver.get("http://www.speed-visualizer.jp/")
+
 		wait = WebDriverWait(driver, 15)
 
 		# 都道府県「一覧から選ぶ」→ 北海道
@@ -60,12 +60,10 @@ while True:
 		time.sleep(1.0)
 
 		# 「×閉じる」ボタンを強制クリック（クリック可能かどうか確認せず実行）
-		try:
-			close_button = driver.find_element(By.XPATH, '/html/body/main/div[1]/section[7]/div[2]/div/div/div[1]/div/button')
-			driver.execute_script("arguments[0].click();", close_button)
-			print("XPathで取得したbtn-closeをクリックしました")
-		except Exception as e:
-			print("閉じる画像のクリックに失敗:", e)
+		close_button = driver.find_element(By.XPATH, '/html/body/main/div[1]/section[7]/div[2]/div/div/div[1]/div/button')
+		driver.execute_script("arguments[0].click();", close_button)
+		print("XPathで取得したbtn-closeをクリックしました")
+
 
 		# 同意チェックをON
 		agree_checkbox = wait.until(EC.presence_of_element_located((By.ID, 'agreementCheck')))
@@ -78,23 +76,19 @@ while True:
 		print("測定開始ボタンをクリックしました")
 
 		# ▼ 測定完了まで十分に待機（※30秒以上かかる場合も）
-		time.sleep(20)  # 必要に応じて調整
+		time.sleep(35)  # 必要に応じて調整
 
 		# ▼ 測定結果を取得（XPathからテキストを抜き出し）
-		try:
-			ipv4_download = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[1]/table/tbody/tr[2]/td[2]/span').text
-			ipv4_upload   = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[1]/table/tbody/tr[2]/td[3]/span').text
-			ipv6_download = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[1]/table/tbody/tr[3]/td[2]/span').text
-			ipv6_upload   = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[1]/table/tbody/tr[3]/td[3]/span').text
 
-			print("測定結果を取得しました")
-			print(f"IPv4 DL: {ipv4_download}, UL: {ipv4_upload}")
-			print(f"IPv6 DL: {ipv6_download}, UL: {ipv6_upload}")
+		ipv4_download = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[1]/table/tbody/tr[2]/td[2]/span').text
+		ipv4_upload   = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[1]/table/tbody/tr[2]/td[3]/span').text
+		ipv6_download = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[1]/table/tbody/tr[3]/td[2]/span').text
+		ipv6_upload   = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[1]/table/tbody/tr[3]/td[3]/span').text
 
-		except Exception as e:
-			print("測定結果の取得に失敗しました:", e)
+		print("測定結果を取得しました")
+		print(f"IPv4 DL: {ipv4_download}, UL: {ipv4_upload}")
+		print(f"IPv6 DL: {ipv6_download}, UL: {ipv6_upload}")
 
-		
 
 		# 追加のボタンをクリック
 		extra_button = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[2]/section[2]/button')
@@ -103,37 +97,34 @@ while True:
 		
 		time.sleep(2)
 
-		try:
-			ipv6_dl_internal = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[3]/section[1]/table/tbody/tr[3]/td[2]/span').text
-			ipv6_ul_internal = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[3]/section[1]/table/tbody/tr[3]/td[3]/span').text
 
-			print("IPv6インターナル測定結果を取得しました")
-			print(f"DL: {ipv6_dl_internal}, UL: {ipv6_ul_internal}")
+		ipv6_dl_internal = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[3]/section[1]/table/tbody/tr[3]/td[2]/span').text
+		ipv6_ul_internal = driver.find_element(By.XPATH, '/html/body/main/div[2]/div[3]/section[1]/table/tbody/tr[3]/td[3]/span').text
 
-			# ▼ CSV形式で追記保存
-			with open("result.csv", "a", newline='', encoding="sjis") as f:
-				writer = csv.writer(f)
-				# writer.writerow([
-				# 		"測定日時",
-				#         "IPv4ダウンロード", "IPv4アップロード",
-				#         "IPv6ダウンロード", "IPv6アップロード",
-				#         "IPv6ダウンロード(インターナル)", "IPv6アップロード(インターナル)"
-				# ])
-				writer.writerow([
-						time.strftime("%Y-%m-%d %H:%M:%S"),
-						ipv4_download, ipv4_upload,
-						ipv6_download, ipv6_upload,
-						ipv6_dl_internal, ipv6_ul_internal
-				])
+		print("IPv6インターナル測定結果を取得しました")
+		print(f"DL: {ipv6_dl_internal}, UL: {ipv6_ul_internal}")
 
-
-
-		except Exception as e:
-			print("インターナル結果の取得に失敗しました:", e) 
+		# ▼ CSV形式で追記保存
+		with open(r"C:\Users\user\Dropbox\result.csv", "a", newline='', encoding="sjis") as f:
+			writer = csv.writer(f)
+			# writer.writerow([
+			# 		"測定日時",
+			#         "IPv4ダウンロード", "IPv4アップロード",
+			#         "IPv6ダウンロード", "IPv6アップロード",
+			#         "IPv6ダウンロード(インターナル)", "IPv6アップロード(インターナル)"
+			# ])
+			writer.writerow([
+					time.strftime("%Y-%m-%d %H:%M:%S"),
+					ipv4_download, ipv4_upload,
+					ipv6_download, ipv6_upload,
+					ipv6_dl_internal, ipv6_ul_internal
+			])
 		
-
-
-	finally:
 		driver.quit()  # 終了後に自動で閉じたい場合
-		time.sleep(300)	  # 10分待機（次の測定までのインターバル）
-		pass
+		time.sleep(144)	  # 10分待機（次の測定までのインターバル）
+
+	except Exception as e:
+		print(f"エラーが発生しました: {e}")
+		driver.quit()
+		time.sleep(5)
+		continue
